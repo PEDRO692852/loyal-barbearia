@@ -92,44 +92,227 @@ body.loaded main,body.loaded .nav,body.loaded .strip,body.loaded .footer,body.lo
 <footer class="footer"><div class="wrap footer-in"><div>© 2026 Loyal Barbearia. Todos os direitos reservados.</div><div>Instagram @loyalbarbeariaa · WhatsApp (61) 3541-2270</div></div></footer>
 <a class="float" href="https://wa.me/556135412270?text=Olá!%20Quero%20agendar%20um%20horário%20na%20Loyal%20Barbearia." target="_blank" aria-label="Agendar pelo WhatsApp">◔</a>
 <script>
-const services={
- cabelo:[
- ['Combo','Corte + barba','R$ 150',true],['Combo Máquina','Combo com corte somente na máquina','R$ 130'],['Combo Premium','Corte + barba + esfoliação ou hidratação','R$ 180'],['Combo Realinhamento Premium','Corte + barba + realinhamento + hidratação + sobrancelha','R$ 347'],['Corte + Hidratação','Corte com restauração capilar','R$ 130'],['Corte à Máquina','Corte somente com máquina','R$ 70'],['Corte Horário Premium','Mais disponibilidade de cadeira, tolerância de atraso de até 30 min e possibilidade de outros serviços','R$ 120'],['Corte Masculino','Corte comum com lavagem e secagem','R$ 90'],['Corte Modelado','Corte com degradê navalhado','Consulte'],['Design de Sobrancelha','Design masculino de sobrancelha','R$ 50'],['Hidratação','Protocolo de hidratação capilar','R$ 60'],['Tonalização','Coloração semipermanente sem amônia','R$ 100']],
- barba:[['Barba','Barba completa','R$ 80',true],['Barba Premium','Barba + esfoliação','R$ 100'],['Esfoliação','Esfoliação facial','R$ 50'],['Pezinho','Acabamento e alinhamento','R$ 40']],
- realinhamento:[['Realinhamento','Realinhamento + escova','R$ 150'],['Realinhamento + Corte','Realinhamento + corte','R$ 230',true],['Realinhamento + Hidratação','Realinhamento + protocolo de hidratação com produtos pós-realinhamento','Consulte']]
+<script>
+const services = {
+  cabelo: [
+    ['Combo', 'Corte + barba', 'R$ 150', true],
+    ['Combo Máquina', 'Combo com corte somente na máquina', 'R$ 130'],
+    ['Combo Premium', 'Corte + barba + esfoliação ou hidratação', 'R$ 180'],
+    ['Combo Realinhamento Premium', 'Corte + barba + realinhamento + hidratação + sobrancelha', 'R$ 347'],
+    ['Corte + Hidratação', 'Corte com restauração capilar', 'R$ 130'],
+    ['Corte à Máquina', 'Corte somente com máquina', 'R$ 70'],
+    ['Corte Horário Premium', 'Mais disponibilidade de cadeira, tolerância de atraso de até 30 min e possibilidade de outros serviços', 'R$ 120'],
+    ['Corte Masculino', 'Corte comum com lavagem e secagem', 'R$ 90'],
+    ['Corte Modelado', 'Corte com degradê navalhado', 'Consulte'],
+    ['Design de Sobrancelha', 'Design masculino de sobrancelha', 'R$ 50'],
+    ['Hidratação', 'Protocolo de hidratação capilar', 'R$ 60'],
+    ['Tonalização', 'Coloração semipermanente sem amônia', 'R$ 100']
+  ],
+
+  barba: [
+    ['Barba', 'Barba completa', 'R$ 80', true],
+    ['Barba Premium', 'Barba + esfoliação', 'R$ 100'],
+    ['Esfoliação', 'Esfoliação facial', 'R$ 50'],
+    ['Pezinho', 'Acabamento e alinhamento', 'R$ 40']
+  ],
+
+  realinhamento: [
+    ['Realinhamento', 'Realinhamento + escova', 'R$ 150'],
+    ['Realinhamento + Corte', 'Realinhamento + corte', 'R$ 230', true],
+    ['Realinhamento + Hidratação', 'Realinhamento + protocolo de hidratação com produtos pós-realinhamento', 'Consulte']
+  ]
 };
-const grid=document.getElementById('serviceGrid');
-function observeReveals(){document.querySelectorAll('.reveal:not([data-observed])').forEach(e=>{e.dataset.observed='1';io.observe(e)})}
-function render(cat){
- grid.classList.remove('switching');void grid.offsetWidth;grid.classList.add('switching');
- grid.innerHTML=services[cat].map((s,i)=>`<article class="service ${s[3]?'featured':''} reveal" style="transition-delay:${Math.min(i*45,300)}ms"><div><h3>${s[0]}</h3><p>${s[1]}</p></div><div class="price">${s[2]}</div></article>`).join('');
- observeReveals();setTimeout(()=>grid.querySelectorAll('.reveal').forEach(e=>e.classList.add('show')),30);
+
+const grid = document.getElementById('serviceGrid');
+const nav = document.getElementById('nav');
+const progress = document.getElementById('scrollProgress');
+const glow = document.querySelector('.page-glow');
+const hero = document.querySelector('.hero-bg');
+
+const revealObserver = new IntersectionObserver(
+  entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('show');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  },
+  {
+    threshold: 0.12,
+    rootMargin: '0px 0px -40px'
+  }
+);
+
+function observeReveals() {
+  document
+    .querySelectorAll('.reveal:not([data-observed])')
+    .forEach(element => {
+      element.dataset.observed = '1';
+      revealObserver.observe(element);
+    });
 }
-render('cabelo');
-document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');render(b.dataset.cat)}));
 
-const nav=document.getElementById('nav');
-const progress=document.getElementById('scrollProgress');
-const glow=document.querySelector('.page-glow');
-function onScroll(){
- nav.classList.toggle('scrolled',scrollY>15);
- const max=document.documentElement.scrollHeight-innerHeight;
- progress.style.width=(max>0?(scrollY/max)*100:0)+'%';
- const hero=document.querySelector('.hero-bg');
- if(hero && scrollY<innerHeight*1.15) hero.style.transform=`scale(1.03) translateY(${scrollY*.045}px)`;
+function renderServices(category) {
+  if (!grid || !services[category]) return;
+
+  grid.classList.remove('switching');
+  void grid.offsetWidth;
+  grid.classList.add('switching');
+
+  grid.innerHTML = services[category]
+    .map((service, index) => {
+      const name = service[0];
+      const description = service[1];
+      const price = service[2];
+      const featured = service[3] ? 'featured' : '';
+
+      return `
+        <article
+          class="service ${featured} reveal"
+          style="transition-delay: ${Math.min(index * 45, 300)}ms"
+        >
+          <div>
+            <h3>${name}</h3>
+            <p>${description}</p>
+          </div>
+
+          <div class="price">${price}</div>
+        </article>
+      `;
+    })
+    .join('');
+
+  observeReveals();
+
+  setTimeout(() => {
+    grid
+      .querySelectorAll('.reveal')
+      .forEach(element => element.classList.add('show'));
+  }, 30);
 }
-addEventListener('scroll',onScroll,{passive:true});onScroll();
 
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('show');io.unobserve(e.target)}}),{threshold:.12,rootMargin:'0px 0px -40px'});
-document.querySelectorAll('.reveal').forEach(e=>io.observe(e));
+function updateScrollEffects() {
+  if (nav) {
+    nav.classList.toggle('scrolled', window.scrollY > 15);
+  }
 
-const counters=document.querySelectorAll('.counter');
-const counterIO=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const el=e.target,target=Number(el.dataset.target||0),dec=Number(el.dataset.decimals||0),suffix=el.dataset.suffix||'';let start=null;const duration=1100;function tick(t){if(start===null)start=t;const p=Math.min((t-start)/duration,1),ease=1-Math.pow(1-p,3);el.textContent=(target*ease).toFixed(dec).replace('.',',')+suffix;if(p<1)requestAnimationFrame(tick)}requestAnimationFrame(tick);counterIO.unobserve(el)}),{threshold:.7});
-counters.forEach(e=>counterIO.observe(e));
+  if (progress) {
+    const documentHeight =
+      document.documentElement.scrollHeight - window.innerHeight;
 
-addEventListener('pointermove',e=>{if(matchMedia('(pointer:fine)').matches&&glow){glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px'}},{passive:true});
+    const percentage =
+      documentHeight > 0
+        ? (window.scrollY / documentHeight) * 100
+        : 0;
 
-addEventListener('load',()=>{requestAnimationFrame(()=>{document.body.classList.remove('is-loading');document.body.classList.add('loaded')})});
-setTimeout(()=>{document.body.classList.remove('is-loading');document.body.classList.add('loaded')},1800);
+    progress.style.width = `${Math.min(percentage, 100)}%`;
+  }
+
+  if (hero && window.scrollY < window.innerHeight * 1.15) {
+    const movement = Math.min(window.scrollY * 0.045, 35);
+    hero.style.transform = `scale(1.03) translateY(${movement}px)`;
+  }
+}
+
+document.querySelectorAll('.tab').forEach(button => {
+  button.addEventListener('click', () => {
+    document
+      .querySelectorAll('.tab')
+      .forEach(tab => tab.classList.remove('active'));
+
+    button.classList.add('active');
+    renderServices(button.dataset.cat);
+  });
+});
+
+const counters = document.querySelectorAll('.counter');
+
+const counterObserver = new IntersectionObserver(
+  entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+
+      const element = entry.target;
+      const target = Number(element.dataset.target || 0);
+      const decimals = Number(element.dataset.decimals || 0);
+      const suffix = element.dataset.suffix || '';
+
+      let startTime = null;
+      const duration = 1100;
+
+      function animateCounter(currentTime) {
+        if (startTime === null) {
+          startTime = currentTime;
+        }
+
+        const progressValue = Math.min(
+          (currentTime - startTime) / duration,
+          1
+        );
+
+        const easedProgress = 1 - Math.pow(1 - progressValue, 3);
+        const currentValue = target * easedProgress;
+
+        element.textContent =
+          currentValue.toFixed(decimals).replace('.', ',') + suffix;
+
+        if (progressValue < 1) {
+          requestAnimationFrame(animateCounter);
+        }
+      }
+
+      requestAnimationFrame(animateCounter);
+      counterObserver.unobserve(element);
+    });
+  },
+  {
+    threshold: 0.7
+  }
+);
+
+counters.forEach(counter => {
+  counterObserver.observe(counter);
+});
+
+window.addEventListener(
+  'scroll',
+  updateScrollEffects,
+  {
+    passive: true
+  }
+);
+
+window.addEventListener(
+  'pointermove',
+  event => {
+    if (
+      window.matchMedia('(pointer: fine)').matches &&
+      glow
+    ) {
+      glow.style.left = `${event.clientX}px`;
+      glow.style.top = `${event.clientY}px`;
+    }
+  },
+  {
+    passive: true
+  }
+);
+
+function showPage() {
+  document.body.classList.remove('is-loading');
+  document.body.classList.add('loaded');
+}
+
+window.addEventListener('load', () => {
+  requestAnimationFrame(showPage);
+});
+
+setTimeout(showPage, 1800);
+
+renderServices('cabelo');
+observeReveals();
+updateScrollEffects();
+</script>
 </script>
 </body></html>
