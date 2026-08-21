@@ -1,17 +1,20 @@
 # Loyal Barbearia — Landing Page Premium
 
-Site comercial responsivo da Loyal Barbearia, Brasília/DF.
+Landing page estática, responsiva e pronta para Vercel.
 
-- WhatsApp: (61) 3541-2270
-- Instagram: @loyalbarbeariaa
-- Rodrigo: @rodrigopdamacena
-- Profissionais: Rodrigo e Gabriel
-- Horários: segunda a sexta 09h–20h; sábado 09h–18h
-- Endereço público atual: SHIS QI 23, Bloco B, Loja 5 — Lago Sul, Brasília/DF
-- Google: 5,0/5 com 106 avaliações na consulta atual
+## Estrutura
+- `index.html`
+- `assets/` — fotos fornecidas para a Loyal Barbearia
 
-Os serviços e preços foram inseridos conforme as informações fornecidas. Onde não foi informado preço, aparece “Consulte”.
+## Publicar na Vercel
+1. Suba esta pasta para um repositório no GitHub.
+2. Na Vercel, importe o repositório.
+3. Framework: Other / nenhum framework.
+4. Build command: deixe vazio.
+5. Output directory: `.`
 
-Fotos oficiais do Instagram ainda não puderam ser extraídas diretamente pelo acesso automatizado; a estrutura está pronta para substituir as imagens de apresentação pelas fotos reais.
+## Editar
+Tudo está concentrado no `index.html`, incluindo textos, preços, links e estilos.
 
-Deploy: projeto estático, pronto para GitHub/Vercel.
+## Observação
+Os serviços cujo preço não foi informado foram deixados como “Consulte”, sem inventar valores.
