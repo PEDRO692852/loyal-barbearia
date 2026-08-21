@@ -1,11 +1,13 @@
 # Loyal Barbearia — Landing Page Premium
 
-Landing page estática, responsiva e pronta para deploy na Vercel.
+Landing page premium da Loyal Barbearia, com imagens locais em JPG para máxima compatibilidade em GitHub Pages, Vercel e navegadores comuns.
 
-## Publicação
-1. Suba todos os arquivos deste diretório para um repositório no GitHub.
-2. Na Vercel, importe o repositório.
-3. Não é necessário build command: é um site estático.
+## Publicar na Vercel
+1. Extraia o ZIP.
+2. Crie um repositório no GitHub e envie todos os arquivos, incluindo a pasta `assets`.
+3. Na Vercel, importe o repositório.
+4. Framework Preset: Other.
+5. Build Command: deixe vazio.
+6. Output Directory: `.`
 
-## Imagens
-As imagens usadas no site foram convertidas para WebP e ficam em `assets/`. Isso evita problemas comuns de carregamento de JPEG e reduz bastante o peso da página.
+**Importante:** não envie apenas o `index.html`. A pasta `assets` precisa ser enviada junto, pois contém todas as fotos reais da Loyal.
