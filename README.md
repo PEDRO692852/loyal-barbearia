@@ -1,22 +1,17 @@
-# Imperium Barbearia — Landing Page Premium
+# Loyal Barbearia — Landing Page Premium
 
-Landing page de alto padrão, responsiva e pronta para deploy estático.
+Site comercial responsivo da Loyal Barbearia, Brasília/DF.
 
-## Stack
-- HTML5 semântico
-- CSS responsivo
-- JavaScript vanilla
-- Google Fonts
-- Imagens externas via Unsplash
+- WhatsApp: (61) 3541-2270
+- Instagram: @loyalbarbeariaa
+- Rodrigo: @rodrigopdamacena
+- Profissionais: Rodrigo e Gabriel
+- Horários: segunda a sexta 09h–20h; sábado 09h–18h
+- Endereço público atual: SHIS QI 23, Bloco B, Loja 5 — Lago Sul, Brasília/DF
+- Google: 5,0/5 com 106 avaliações na consulta atual
 
-## Personalização rápida
-1. Troque o nome "Imperium" pelo nome real.
-2. Atualize preços, endereço, horários e depoimentos.
-3. Substitua o link `https://wa.me/5500000000000` pelo WhatsApp real.
-4. Substitua as imagens pelos materiais reais da barbearia.
+Os serviços e preços foram inseridos conforme as informações fornecidas. Onde não foi informado preço, aparece “Consulte”.
 
-## Deploy na Vercel
-Importe este repositório na Vercel e publique como projeto estático. Não há build command necessário.
+Fotos oficiais do Instagram ainda não puderam ser extraídas diretamente pelo acesso automatizado; a estrutura está pronta para substituir as imagens de apresentação pelas fotos reais.
 
-## Observação
-O conteúdo textual e as informações comerciais são placeholders. A estrutura visual foi criada para preservar o conteúdo da marca e elevar a percepção de valor.
+Deploy: projeto estático, pronto para GitHub/Vercel.
