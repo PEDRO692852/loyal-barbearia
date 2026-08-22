@@ -1,107 +1,93 @@
-<!-- ============================================= -->
-<!-- WIDGET DE AGENDAMENTO COM IA — LOYAL BARBEARIA -->
-<!-- Cole este bloco inteiro antes do </body> do index.html -->
-<!-- ============================================= -->
-<style>
-  #bkFab{
-    position:fixed; bottom:20px; right:20px; z-index:9999;
-    width:60px; height:60px; border-radius:50%;
-    background:#E3A72B; border:none; cursor:pointer;
-    box-shadow:0 6px 20px rgba(0,0,0,0.35);
-    font-size:26px; display:flex; align-items:center; justify-content:center;
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Método não permitido' });
   }
-  #bkPanel{
-    position:fixed; bottom:90px; right:20px; z-index:9999;
-    width:340px; max-width:92vw; height:480px; max-height:75vh;
-    background:#141414; border-radius:16px; overflow:hidden;
-    display:none; flex-direction:column;
-    box-shadow:0 10px 40px rgba(0,0,0,0.5);
-    font-family:'Poppins', Arial, sans-serif;
-  }
-  #bkPanel.open{display:flex;}
-  #bkHeader{
-    background:#0c0c0c; color:#fff; padding:14px 16px;
-    display:flex; justify-content:space-between; align-items:center;
-  }
-  #bkHeader strong{font-size:14px;}
-  #bkHeader span{font-size:11px; color:#999; display:block;}
-  #bkClose{background:none; border:none; color:#999; font-size:20px; cursor:pointer;}
-  #bkMessages{
-    flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px;
-  }
-  .bkMsg{max-width:80%; padding:9px 12px; border-radius:12px; font-size:13px; line-height:1.4;}
-  .bkMsg.bot{background:#232323; color:#eee; align-self:flex-start; border-bottom-left-radius:2px;}
-  .bkMsg.user{background:#E3A72B; color:#141414; align-self:flex-end; border-bottom-right-radius:2px; font-weight:500;}
-  #bkInputRow{display:flex; gap:8px; padding:12px; border-top:1px solid #262626;}
-  #bkInput{
-    flex:1; background:#1e1e1e; border:1px solid #333; border-radius:10px;
-    color:#fff; padding:9px 12px; font-size:13px; font-family:inherit;
-  }
-  #bkSend{background:#E3A72B; border:none; border-radius:10px; padding:0 14px; cursor:pointer; font-weight:600; font-size:13px;}
-</style>
 
-<button id="bkFab" onclick="bkToggle()">💬</button>
-<div id="bkPanel">
-  <div id="bkHeader">
-    <div><strong>Agendar na Loyal</strong><span>Responde na hora, todo dia</span></div>
-    <button id="bkClose" onclick="bkToggle()">×</button>
-  </div>
-  <div id="bkMessages"></div>
-  <div id="bkInputRow">
-    <input id="bkInput" placeholder="Digite aqui..." onkeydown="if(event.key==='Enter') bkSend()">
-    <button id="bkSend" onclick="bkSend()">Enviar</button>
-  </div>
-</div>
+  try {
+    const { history } = req.body || {};
+    if (!Array.isArray(history) || history.length === 0) {
+      return res.status(400).json({ error: 'Histórico não enviado' });
+    }
 
-<script>
-let bkHistory = [];
-let bkOpened = false;
+    const SUPABASE_URL = process.env.SUPABASE_URL;
+    const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
-function bkToggle(){
-  const panel = document.getElementById('bkPanel');
-  panel.classList.toggle('open');
-  if(panel.classList.contains('open') && !bkOpened){
-    bkOpened = true;
-    bkAddMessage('bot', 'Oi! 👋 Sou a assistente virtual da Loyal Barbearia. Posso te ajudar a marcar um horário agora mesmo. Qual serviço você quer fazer — corte, barba, ou os dois?');
-  }
-}
-
-function bkAddMessage(role, text){
-  const box = document.getElementById('bkMessages');
-  const div = document.createElement('div');
-  div.className = 'bkMsg ' + role;
-  div.textContent = text;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-  bkHistory.push({ role: role === 'user' ? 'user' : 'assistant', content: text });
-}
-
-async function bkSend(){
-  const input = document.getElementById('bkInput');
-  const text = input.value.trim();
-  if(!text) return;
-  bkAddMessage('user', text);
-  input.value = '';
-
-  const thinking = document.createElement('div');
-  thinking.className = 'bkMsg bot';
-  thinking.id = 'bkThinking';
-  thinking.textContent = 'digitando...';
-  document.getElementById('bkMessages').appendChild(thinking);
-  document.getElementById('bkMessages').scrollTop = 999999;
-
-  try{
-    const response = await fetch('/api/booking-chat', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ history: bkHistory })
+    const servicesRes = await fetch(SUPABASE_URL + '/rest/v1/services?select=*', {
+      headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
     });
+    const services = await servicesRes.json();
+    const servicesTxt = (services || []).map(s => s.name + ' - R$' + s.price + ' (' + s.duration_minutes + ' min)').join('\n');
+
+    const today = new Date().toISOString().slice(0, 10);
+    const in30 = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+    const bookingsRes = await fetch(SUPABASE_URL + '/rest/v1/bookings?select=booking_date,booking_time&booking_date=gte.' + today + '&booking_date=lte.' + in30, {
+      headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
+    });
+    const bookings = await bookingsRes.json();
+    const bookingsTxt = (bookings && bookings.length) ? bookings.map(b => b.booking_date + ' às ' + b.booking_time).join(', ') : 'nenhum agendamento no momento';
+
+    const hojeExtenso = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    const systemPrompt = 'Você é a assistente virtual de agendamento da Loyal Barbearia (Lago Sul, Brasília). Hoje é ' + hojeExtenso + '. Horário de funcionamento: Segunda a Sexta 9h-20h, Sábado 9h-18h, fechado aos domingos.\n\n' +
+      'Serviços disponíveis:\n' + servicesTxt + '\n\n' +
+      'Horários já ocupados nos próximos 30 dias (NÃO pode marcar em cima destes): ' + bookingsTxt + '.\n\n' +
+      'Sua missão: conversar de forma natural, simpática e curta, descobrir qual serviço a pessoa quer, em que data e horário, e pegar o nome completo e telefone dela. Confirme um agendamento só se o horário estiver dentro do funcionamento e livre. Se pedir um horário ocupado ou fora do funcionamento, sugira o mais próximo disponível. Nunca invente serviço que não está na lista.\n\n' +
+      'Responda SEMPRE em JSON puro, sem markdown, neste formato: {"reply": "sua resposta pro cliente", "booking": null}\n\n' +
+      'Quando tiver TODAS as informações confirmadas (serviço, data, horário, nome, telefone) e o horário estiver livre, preencha booking assim: {"reply": "confirmação amigável", "booking": {"service_name": "nome exato da lista de serviços", "client_name": "nome", "client_phone": "telefone", "booking_date": "AAAA-MM-DD", "booking_time": "HH:MM"}}';
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 500,
+        system: systemPrompt,
+        messages: history.map(h => ({ role: h.role, content: h.content }))
+      })
+    });
+
     const data = await response.json();
-    document.getElementById('bkThinking').remove();
-    bkAddMessage('bot', data.reply || 'Desculpa, não entendi. Pode repetir?');
-  }catch(e){
-    document.getElementById('bkThinking').remove();
-    bkAddMessage('bot', 'Tive um probleminha aqui — tenta de novo em instantes, ou chama no WhatsApp: (61) 3541-2270.');
+    if (!response.ok) {
+      return res.status(response.status).json({ error: (data.error && data.error.message) || 'Erro na API da Anthropic' });
+    }
+
+    const text = (data.content || []).map(b => b.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    let parsed;
+    try {
+      parsed = JSON.parse(clean);
+    } catch (e) {
+      parsed = { reply: text, booking: null };
+    }
+
+    if (parsed.booking && parsed.booking.service_name) {
+      const svc = (services || []).find(s => s.name.toLowerCase() === parsed.booking.service_name.toLowerCase());
+      if (svc) {
+        await fetch(SUPABASE_URL + '/rest/v1/bookings', {
+          method: 'POST',
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: 'Bearer ' + SUPABASE_KEY,
+            'Content-Type': 'application/json',
+            Prefer: 'return=minimal'
+          },
+          body: JSON.stringify({
+            service_id: svc.id,
+            client_name: parsed.booking.client_name,
+            client_phone: parsed.booking.client_phone,
+            booking_date: parsed.booking.booking_date,
+            booking_time: parsed.booking.booking_time
+          })
+        });
+      }
+    }
+
+    return res.status(200).json({ reply: parsed.reply || 'Desculpa, pode repetir?' });
+  } catch (e) {
+    return res.status(500).json({ error: 'Erro interno no agendamento' });
   }
 }
-</script>
